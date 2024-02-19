@@ -1,0 +1,20 @@
+[package]
+name = "fbink-rs"
+version = "0.1.0"
+edition = "2021"
+authors = ["sublipri"]
+license = "GPL-3.0-or-later"
+description = "Bindings for the FBInk C library"
+repository = "https://github.com/sublipri/fbink-rs"
+readme = "README.md"
+
+[dependencies]
+libc = "0.2.153"
+num-traits = "0.2.18"
+num_enum = "0.7.2"
+fbink-sys = { path = "../fbink-sys" }
+proc-mounts = "0.3.0"
+image = { version = "0.24.8", default-features = false, features = ["png", "bmp", "jpeg"] }
+thiserror = "1.0.57"
+flagset = { version = "0.4.4", features = ["std"] }
+strum = { version = "0.26.1", features = ["derive"] }

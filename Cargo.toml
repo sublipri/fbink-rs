@@ -1,0 +1,12 @@
+[workspace]
+resolver = "2"
+
+members = [
+    "fbink-sys",
+    "fbink-rs",
+]
+
+[profile.release]
+opt-level = 3
+# lto = "fat"
+strip = true

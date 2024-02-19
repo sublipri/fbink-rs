@@ -1,0 +1,3 @@
+[submodule "fbink-sys/FBInk"]
+	path = fbink-sys/FBInk
+	url = https://github.com/NiLuJe/FBInk

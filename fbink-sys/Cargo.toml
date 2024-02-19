@@ -1,0 +1,12 @@
+[package]
+name = "fbink-sys"
+version = "0.1.0"
+edition = "2021"
+authors = ["sublipri"]
+license = "GPL-3.0-or-later"
+description = "Raw bindings for the FBInk C library"
+repository = "https://github.com/sublipri/fbink-rs"
+readme = "README.md"
+
+[build-dependencies]
+bindgen = "0.69.4"
