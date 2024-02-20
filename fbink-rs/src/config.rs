@@ -3,6 +3,7 @@ use fbink_sys::*;
 use num_enum::{FromPrimitive, IntoPrimitive};
 
 #[derive(Debug, Default, Copy, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FbInkConfig {
     pub row: i16,
     pub col: i16,
@@ -82,6 +83,7 @@ impl From<FbInkConfig> for raw::FBInkConfig {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum Font {
     #[default]
@@ -120,6 +122,7 @@ pub enum Font {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u32)]
 pub enum FontStyle {
     #[default]
@@ -130,6 +133,7 @@ pub enum FontStyle {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum Alignment {
     #[default]
@@ -139,6 +143,7 @@ pub enum Alignment {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum PaddingIndex {
     #[default]
@@ -149,6 +154,7 @@ pub enum PaddingIndex {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum ForegroundColor {
     #[default]
@@ -171,6 +177,7 @@ pub enum ForegroundColor {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum BackgroundColor {
     #[default]
@@ -193,6 +200,7 @@ pub enum BackgroundColor {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum WaveformMode {
     #[default]
@@ -230,6 +238,7 @@ pub enum WaveformMode {
 }
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum HardwareDitherMode {
     #[default]

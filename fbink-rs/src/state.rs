@@ -8,6 +8,7 @@ use num_enum::{FromPrimitive, IntoPrimitive};
 use strum::{AsRefStr, Display};
 
 #[derive(Debug, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FbInkState {
     pub user_hz: ::std::os::raw::c_long,
     pub font_name: String,
@@ -154,6 +155,7 @@ impl FbInkState {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum CanonicalRotation {
     #[default]
@@ -175,6 +177,7 @@ impl std::fmt::Display for CanonicalRotation {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum NtxRotationQuirk {
     #[default]
@@ -188,6 +191,7 @@ pub enum NtxRotationQuirk {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(i8)]
 pub enum SunxiForceRotation {
     #[default]
@@ -205,6 +209,7 @@ pub enum SunxiForceRotation {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u8)]
 pub enum MtkSwipeDirection {
     Down = MTK_SWIPE_DIRECTION_INDEX_E_MTK_SWIPE_DIR_DOWN,
@@ -215,6 +220,7 @@ pub enum MtkSwipeDirection {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u32)]
 pub enum MtkHalftoneMode {
     #[default]
@@ -223,6 +229,7 @@ pub enum MtkHalftoneMode {
 }
 
 #[derive(Debug, Display, AsRefStr, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u16)]
 #[strum(serialize_all = "title_case")]
 pub enum DeviceId {

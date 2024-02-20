@@ -18,3 +18,7 @@ image = { version = "0.24.8", default-features = false, features = ["png", "bmp"
 thiserror = "1.0.57"
 flagset = { version = "0.4.4", features = ["std"] }
 strum = { version = "0.26.1", features = ["derive"] }
+serde = { version = "1.0.196", features = ["derive"], optional=true }
+
+[features]
+default = []
