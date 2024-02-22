@@ -11,7 +11,8 @@ use std::process::Command;
 use std::slice;
 
 use fbink_sys as raw;
-use image::{imageops, ColorType, ImageOutputFormat};
+pub use image::ImageOutputFormat;
+use image::{imageops, ColorType};
 use proc_mounts::MountIter;
 
 pub mod config;
