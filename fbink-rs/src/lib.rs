@@ -7,6 +7,7 @@ use std::mem::MaybeUninit;
 
 use dump::{dump_sunxi, FbInkDump};
 use fbink_sys as raw;
+pub use fbink_sys::FBInkRect as FbInkRect;
 pub use image::ImageOutputFormat;
 
 pub mod config;
@@ -152,6 +153,27 @@ impl FbInk {
             }
             x => Err(FbInkError::Other(x)),
         }
+    }
+
+    /// Like region_dump but takes a FbInkRect and doesn't apply any rotation/positioning tricks
+    pub fn rect_dump(&self, rect: FbInkRect) -> Result<FbInkDump, FbInkError> {
+        let mut dump = MaybeUninit::<raw::FBInkDump>::zeroed();
+        let rv = unsafe { raw::fbink_rect_dump(self.fbfd, &rect, dump.as_mut_ptr()) };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(FbInkDump::new(unsafe { dump.assume_init() })),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("dump".into())),
+            libc::ENOSYS => {
+                let msg = "FBInk was built without image support".into();
+                Err(FbInkError::NotSupported(msg))
+            }
+            libc::EINVAL => Err(FbInkError::InvalidArgument("region out of bounds".into())),
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    /// Get the coordinates & dimensions of the last thing drawn on the framebuffer
+    pub fn get_last_rect(&self, rotated: bool) -> FbInkRect {
+        unsafe { raw::fbink_get_last_rect(rotated)}
     }
 
     /// Restore the contents of a dump back to the framebuffer
