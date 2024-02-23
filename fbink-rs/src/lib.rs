@@ -124,7 +124,7 @@ impl FbInk {
 
     /// Dump the contents of a specific region of the framebuffer
     pub fn region_dump(
-        &mut self,
+        &self,
         x: i16,
         y: i16,
         width: u16,
@@ -192,7 +192,7 @@ impl FbInk {
     }
 
     /// Take a screenshot of the framebuffer. Returns the encoded image as bytes
-    pub fn screenshot(&mut self, encoding: ImageOutputFormat) -> Result<Vec<u8>, FbInkError> {
+    pub fn screenshot(&self, encoding: ImageOutputFormat) -> Result<Vec<u8>, FbInkError> {
         let state = self.state();
         if state.is_sunxi {
             Ok(dump_sunxi(Some(encoding), state.current_rota)?)
