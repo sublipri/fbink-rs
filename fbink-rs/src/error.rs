@@ -24,4 +24,6 @@ pub enum FbInkError {
     ImageError(#[from] image::error::ImageError),
     #[error(transparent)]
     NulStringError(#[from] std::ffi::NulError),
+    #[error("Failed to dump the working buffer")]
+    SunxiDumpError,
 }

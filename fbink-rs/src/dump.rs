@@ -127,9 +127,10 @@ pub fn dump_sunxi(
     // Path is hard-coded by the kernel
     let mount_path = PathBuf::from("/mnt/flash");
     let bmp_path = mount_path.join("workingbuffer.bmp");
-    fs::create_dir_all(&mount_path).unwrap();
+    fs::create_dir_all(&mount_path)?;
 
-    if !MountIter::new()?.any(|m| m.unwrap().dest == mount_path) {
+    // Ensure a tmpfs is mounted so we write the image to memory
+    if !MountIter::new()?.any(|r| r.is_ok_and(|m| m.dest == mount_path)) {
         Command::new("mount")
             .arg("-t")
             .arg("tmpfs")
@@ -142,13 +143,11 @@ pub fn dump_sunxi(
 
     // Trigger a dump of the framebuffer by reading from the sysfs file
     let sysfs_path = "/sys/devices/virtual/disp/disp/waveform/get_working_buffer";
-    let rv: i32 = fs::read_to_string(sysfs_path)?.trim().parse().unwrap();
-
-    if rv == 0 {
-        println!("Working buffer dumped to {}", bmp_path.display());
-    } else {
-        println!("Failed to dump the working buffer!");
+    let rv = fs::read_to_string(sysfs_path)?.trim().parse::<i32>();
+    if rv != Ok(0) {
+        return Err(FbInkError::SunxiDumpError);
     }
+
     let mut decoded = image::io::Reader::open(bmp_path)?.decode()?;
     imageops::flip_vertical_in_place(&mut decoded);
     let decoded = match current_rota {
