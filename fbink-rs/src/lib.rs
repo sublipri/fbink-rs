@@ -49,11 +49,6 @@ impl FbInk {
         }
     }
 
-    /// Convenience method to avoid needing FbInkConfig in scope for basic usage
-    pub fn with_defaults() -> Result<Self, FbInkError> {
-        Self::new(FbInkConfig::default())
-    }
-
     /// Return FBInk's current internal state
     pub fn state(&self) -> FbInkState {
         let state = MaybeUninit::<raw::FBInkState>::zeroed();
