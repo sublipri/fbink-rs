@@ -198,6 +198,13 @@ impl FbInk {
             Ok(dump.encode(encoding)?)
         }
     }
+
+    /// The current canonical rotation of the framebuffer.
+    pub fn current_rotation(&self) -> Result<CanonicalRotation, FbInkError> {
+        self.reinit()?;
+        Ok(self.state().canonical_rotation())
+
+    }
 }
 
 use flagset::{flags, FlagSet};
