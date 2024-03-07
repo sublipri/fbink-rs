@@ -102,6 +102,82 @@ impl FbInk {
         self.print(msg)
     }
 
+    /// Refresh the screen at the given coordinates. If all arguments are 0, performs a full refresh
+    pub fn refresh(&self, top: u32, left: u32, width: u32, height: u32) -> Result<(), FbInkError> {
+        let rv =
+            unsafe { raw::fbink_refresh(self.fbfd, top, left, width, height, &self.config.into()) };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("refresh".into())),
+            libc::ENOSYS => {
+                let msg = "Refresh is only supported on eInk devices".into();
+                Err(FbInkError::NotSupported(msg))
+            }
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    /// Refresh the screen using a FbInkRect for coordinates
+    pub fn refresh_rect(&self, rect: FbInkRect) -> Result<(), FbInkError> {
+        let rv = unsafe { raw::fbink_refresh_rect(self.fbfd, &rect, &self.config.into()) };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("refresh_rect".into())),
+            libc::ENOSYS => {
+                let msg = "Refresh is only supported on eInk devices".into();
+                Err(FbInkError::NotSupported(msg))
+            }
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    /// Refresh the screen using grid coordinates with the same positioning trickery as fbink_print
+    pub fn grid_refresh(&self, cols: u16, rows: u16) -> Result<(), FbInkError> {
+        let rv = unsafe { raw::fbink_grid_refresh(self.fbfd, cols, rows, &self.config.into()) };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("refresh".into())),
+            libc::ENOSYS => {
+                let msg = "Refresh is only supported on eInk devices".into();
+                Err(FbInkError::NotSupported(msg))
+            }
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    /// Clear the entire screen using the background pen color
+    pub fn cls(&self) -> Result<(), FbInkError> {
+        self.cls_rect(Default::default(), false)
+    }
+
+    /// Clear a specific region of the screen using the background pen color
+    pub fn cls_rect(&self, rect: FbInkRect, no_rota: bool) -> Result<(), FbInkError> {
+        let rv = unsafe { raw::fbink_cls(self.fbfd, &self.config.into(), &rect, no_rota) };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("cls".into())),
+            libc::ENOSYS => {
+                let msg = "FBInk was built without drawing support".into();
+                Err(FbInkError::NotSupported(msg))
+            }
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    /// Clear the screen using grid coordinates with the same positioning trickery as fbink_print
+    pub fn grid_clear(&self, cols: u16, rows: u16) -> Result<(), FbInkError> {
+        let rv = unsafe { raw::fbink_grid_clear(self.fbfd, cols, rows, &self.config.into()) };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("grid_clear".into())),
+            libc::ENOSYS => {
+                let msg = "FBInk was built without drawing support".into();
+                Err(FbInkError::NotSupported(msg))
+            }
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
     /// Dump the contents of the framebuffer
     pub fn dump(&self) -> Result<FbInkDump, FbInkError> {
         let mut dump = MaybeUninit::<raw::FBInkDump>::zeroed();
@@ -168,7 +244,7 @@ impl FbInk {
 
     /// Get the coordinates & dimensions of the last thing drawn on the framebuffer
     pub fn get_last_rect(&self, rotated: bool) -> FbInkRect {
-        unsafe { raw::fbink_get_last_rect(rotated)}
+        unsafe { raw::fbink_get_last_rect(rotated) }
     }
 
     /// Restore the contents of a dump back to the framebuffer
@@ -203,7 +279,6 @@ impl FbInk {
     pub fn current_rotation(&self) -> Result<CanonicalRotation, FbInkError> {
         self.reinit()?;
         Ok(self.state().canonical_rotation())
-
     }
 }
 

@@ -66,6 +66,7 @@ fn main() {
         .allowlist_file("FBInk/fbink.h")
         // Make the comments from fbink.h appear as doc comments for our bindings
         .clang_arg("-fparse-all-comments")
+        .derive_default(true)
         // Finish the builder and generate the bindings.
         .generate()
         // Unwrap the Result and panic on failure.
