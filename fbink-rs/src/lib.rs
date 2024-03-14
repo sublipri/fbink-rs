@@ -2,8 +2,9 @@ pub use crate::config::FbInkConfig;
 use crate::error::FbInkError;
 pub use crate::state::{CanonicalRotation, FbInkState};
 
-use std::ffi::CString;
 use std::mem::MaybeUninit;
+use std::os::unix::ffi::OsStrExt;
+use std::{ffi::CString, path::Path};
 
 use dump::{dump_sunxi, FbInkDump};
 use fbink_sys as raw;
@@ -185,10 +186,7 @@ impl FbInk {
         match -rv {
             libc::EXIT_SUCCESS => Ok(FbInkDump::new(unsafe { dump.assume_init() })),
             libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("dump".into())),
-            libc::ENOSYS => {
-                let msg = "FBInk was built without image support".into();
-                Err(FbInkError::NotSupported(msg))
-            }
+            libc::ENOSYS => Err(FbInkError::NoImageSupport),
             x => Err(FbInkError::Other(x)),
         }
     }
@@ -218,10 +216,7 @@ impl FbInk {
             libc::EXIT_SUCCESS => Ok(FbInkDump::new(unsafe { dump.assume_init() })),
             libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("dump".into())),
             libc::EINVAL => Err(FbInkError::InvalidArgument("empty region".into())),
-            libc::ENOSYS => {
-                let msg = "FBInk was built without image support".into();
-                Err(FbInkError::NotSupported(msg))
-            }
+            libc::ENOSYS => Err(FbInkError::NoImageSupport),
             x => Err(FbInkError::Other(x)),
         }
     }
@@ -233,10 +228,7 @@ impl FbInk {
         match -rv {
             libc::EXIT_SUCCESS => Ok(FbInkDump::new(unsafe { dump.assume_init() })),
             libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("dump".into())),
-            libc::ENOSYS => {
-                let msg = "FBInk was built without image support".into();
-                Err(FbInkError::NotSupported(msg))
-            }
+            libc::ENOSYS => Err(FbInkError::NoImageSupport),
             libc::EINVAL => Err(FbInkError::InvalidArgument("region out of bounds".into())),
             x => Err(FbInkError::Other(x)),
         }
@@ -253,11 +245,56 @@ impl FbInk {
         match -rv {
             libc::EXIT_SUCCESS => Ok(()),
             libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("restore".into())),
-            libc::ENOSYS => {
-                let msg = "FBInk was built without image support".into();
-                Err(FbInkError::NotSupported(msg))
-            }
+            libc::ENOSYS => Err(FbInkError::NoImageSupport),
             libc::EINVAL => Err(FbInkError::InvalidArgument("no data".into())),
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    // Doesn't seem to work
+    fn print_image<P: AsRef<Path>>(
+        &self,
+        path: P,
+        x_off: i16,
+        y_off: i16,
+    ) -> Result<(), FbInkError> {
+        let filename = CString::new(path.as_ref().as_os_str().as_bytes())?;
+        let ptr = filename.as_ptr();
+        let rv = unsafe {
+            raw::fbink_print_image(self.fbfd, ptr, x_off, y_off, &self.config.into())
+        };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("print_image".into())),
+            libc::ENOSYS => Err(FbInkError::NoImageSupport),
+            x => Err(FbInkError::Other(x)),
+        }
+    }
+
+    pub fn print_raw_data(
+        &self,
+        data: &mut [u8],
+        w: i32,
+        h: i32,
+        x_off: i16,
+        y_off: i16,
+    ) -> Result<(), FbInkError> {
+        let rv = unsafe {
+            raw::fbink_print_raw_data(
+                self.fbfd,
+                data.as_mut_ptr(),
+                w,
+                h,
+                data.len(),
+                x_off,
+                y_off,
+                &self.config.into(),
+            )
+        };
+        match -rv {
+            libc::EXIT_SUCCESS => Ok(()),
+            libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("print_image".into())),
+            libc::ENOSYS => Err(FbInkError::NoImageSupport),
             x => Err(FbInkError::Other(x)),
         }
     }

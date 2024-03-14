@@ -6,6 +6,8 @@ pub enum FbInkError {
     ExitFailure(String),
     #[error("{0}")]
     NotSupported(String),
+    #[error("FBInk was built without image support")]
+    NoImageSupport,
     #[error("Invalid argument provided ({0})")]
     InvalidArgument(String),
     // NoDevice,
