@@ -6,6 +6,7 @@ use crate::thin::*;
 use dump::{dump_sunxi, FbInkDump};
 pub use fbink_sys::FBInkRect as FbInkRect;
 pub use image::ImageOutputFormat;
+use state::SunxiForceRotation;
 
 pub mod config;
 pub mod dump;
@@ -172,5 +173,10 @@ impl FbInk {
     pub fn current_rotation(&self) -> Result<CanonicalRotation, FbInkError> {
         self.reinit()?;
         Ok(self.state().canonical_rotation())
+    }
+
+    /// Control how fbink_init & fbink_reinit handle rotation on Sunxi SoCs
+    pub fn sunxi_ntx_enforce_rota(&self, mode: SunxiForceRotation) -> ReinitResult {
+        fbink_sunxi_ntx_enforce_rota(self.fbfd, &self.config, mode)
     }
 }

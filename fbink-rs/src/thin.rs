@@ -4,7 +4,7 @@
 use crate::config::FbInkConfig;
 use crate::dump::FbInkDump;
 use crate::error::FbInkError;
-use crate::state::FbInkState;
+use crate::state::{FbInkState, SunxiForceRotation};
 
 use std::ffi::CString;
 use std::mem::MaybeUninit;
@@ -383,7 +383,31 @@ pub fn rota_native_to_canonical(rota: u32) -> Result<u8, FbInkError> {
 // pub fn fbink_set_fb_info() {}
 //
 // pub fn fbink_sunxi_toggle_ntx_pen_mode() {}
-// pub fn fbink_sunxi_ntx_enforce_rota() {}
+
+/// Control how fbink_init & fbink_reinit handle rotation on Sunxi SoCs
+pub fn fbink_sunxi_ntx_enforce_rota(
+    fbfd: i32,
+    config: &FbInkConfig,
+    mode: SunxiForceRotation,
+) -> ReinitResult {
+    let mode = mode.into();
+    let mut rv = unsafe { raw::fbink_sunxi_ntx_enforce_rota(fbfd, mode, &(*config).into()) };
+    if rv < 0 {
+        rv = -rv
+    }
+    match rv {
+        libc::EXIT_SUCCESS => Ok(None),
+        libc::ENOSYS => Err(FbInkError::NotSupported(
+            "Only supported on Kobos with Sunxi SoCs".into(),
+        )),
+        libc::EINVAL => Err(FbInkError::InvalidArgument(format!(
+            "{mode} is not a valid mode"
+        ))),
+        libc::ENOTSUP => Err(FbInkError::NotSupported(format!("{mode} is not supported"))),
+        x if x > 256 => Ok(Some(FlagSet::new(x as u32).unwrap())),
+        _ => Err(FbInkError::Other(rv)),
+    }
+}
 //
 // pub fn fbink_mtk_set_swipe_data() {}
 // pub fn fbink_wait_for_any_complete() {}
