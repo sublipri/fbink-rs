@@ -1,4 +1,5 @@
 use crate::error::FbInkError;
+use crate::thin::fbink_free_dump_data;
 
 use std::fs;
 use std::io::Cursor;
@@ -17,7 +18,7 @@ pub struct FbInkDump {
 
 impl Drop for FbInkDump {
     fn drop(&mut self) {
-        unsafe { raw::fbink_free_dump_data(&mut self.raw) };
+        fbink_free_dump_data(&mut self.raw).unwrap();
     }
 }
 

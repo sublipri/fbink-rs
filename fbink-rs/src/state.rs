@@ -1,4 +1,4 @@
-use crate::error::FbInkError;
+use crate::thin::rota_native_to_canonical;
 
 use std::ffi::CStr;
 
@@ -128,27 +128,12 @@ impl FbInkState {
             can_wait_for_submission: s.can_wait_for_submission,
         }
     }
-    pub fn rota_native_to_canonical(&self) -> Result<CanonicalRotation, FbInkError> {
-        // returns positive error codes
-        let rv = unsafe { raw::fbink_rota_native_to_canonical(self.current_rota.into()) };
-        match rv as i32 {
-            libc::ENOSYS => {
-                let msg = "Canonical rotation is only necessary on Kobo devices".into();
-                Err(FbInkError::NotSupported(msg))
-            }
-            libc::ERANGE => Err(FbInkError::OutOfRange(
-                "{rv} is not a valid rotation".into(),
-            )),
-            0..=3 => Ok(CanonicalRotation::from_primitive(rv)),
-            x => Err(FbInkError::Other(x)),
-        }
-    }
 
     /// The current canonical rotation of the device. For non-Kobo devices, this
     /// assumes that the framebuffer's reported rotation value is canonical.
-    pub fn canonical_rotation(self) -> CanonicalRotation {
-        match self.rota_native_to_canonical() {
-            Ok(rotation) => rotation,
+    pub fn canonical_rotation(&self) -> CanonicalRotation {
+        match rota_native_to_canonical(self.current_rota.into()) {
+            Ok(rotation) => CanonicalRotation::from_primitive(rotation),
             Err(_) => CanonicalRotation::from_primitive(self.current_rota),
         }
     }
