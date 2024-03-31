@@ -179,4 +179,14 @@ impl FbInk {
     pub fn sunxi_ntx_enforce_rota(&self, mode: SunxiForceRotation) -> ReinitResult {
         fbink_sunxi_ntx_enforce_rota(self.fbfd, &self.config, mode)
     }
+
+    pub fn wait_for_complete(&self, marker: u32) -> Result<(), FbInkError> {
+        fbink_wait_for_complete(self.fbfd, marker)
+    }
+    pub fn wait_for_last_complete(&self) -> Result<(), FbInkError> {
+        self.wait_for_complete(fbink_sys::LAST_MARKER)
+    }
+    pub fn wait_for_any_complete(&self) -> Result<(), FbInkError> {
+        fbink_wait_for_any_complete(self.fbfd)
+    }
 }

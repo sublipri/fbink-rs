@@ -320,7 +320,28 @@ pub fn fbink_print_raw_data(
 // pub fn fbink_printf() {}
 //
 // pub fn fbink_wait_for_submission() {}
-// pub fn fbink_wait_for_complete() {}
+pub fn fbink_wait_for_complete(fbfd: c_int, marker: u32) -> Result<(), FbInkError> {
+    let rv = unsafe { raw::fbink_wait_for_complete(fbfd, marker) };
+    match -rv {
+        libc::EXIT_SUCCESS => Ok(()),
+        libc::ENOSYS => Err(FbInkError::NotSupported(
+            "wait_for_complete not supported on this device".into(),
+        )),
+        libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("wait_for_complete".into())),
+        x => Err(FbInkError::Other(x)),
+    }
+}
+pub fn fbink_wait_for_any_complete(fbfd: c_int) -> Result<(), FbInkError> {
+    let rv = unsafe { raw::fbink_wait_for_any_complete(fbfd) };
+    match -rv {
+        libc::EXIT_SUCCESS => Ok(()),
+        libc::ENOSYS => Err(FbInkError::NotSupported(
+            "wait_for_any_complete not supported on this device".into(),
+        )),
+        libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("wait_for_any_complete".into())),
+        x => Err(FbInkError::Other(x)),
+    }
+}
 // pub fn fbink_get_last_marker() {}
 //
 // pub fn fbink_update_verbosity() {}
@@ -410,7 +431,6 @@ pub fn fbink_sunxi_ntx_enforce_rota(
 }
 //
 // pub fn fbink_mtk_set_swipe_data() {}
-// pub fn fbink_wait_for_any_complete() {}
 // pub fn fbink_mtk_set_halftone() {}
 // pub fn fbink_mtk_toggle_auto_reagl() {}
 // pub fn fbink_mtk_toggle_pen_mode() {}
