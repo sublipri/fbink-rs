@@ -286,7 +286,7 @@ pub fn fbink_restore(
 pub fn fbink_print_raw_data(
     fbfd: c_int,
     config: &FbInkConfig,
-    data: &mut [u8],
+    data: &[u8],
     w: i32,
     h: i32,
     x_off: i16,
@@ -295,7 +295,7 @@ pub fn fbink_print_raw_data(
     let rv = unsafe {
         raw::fbink_print_raw_data(
             fbfd,
-            data.as_mut_ptr(),
+            data.as_ptr() as *mut std::os::raw::c_uchar,
             w,
             h,
             data.len(),

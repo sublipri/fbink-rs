@@ -147,7 +147,7 @@ impl FbInk {
     /// Print raw scanlines on the screen (packed pixels).
     pub fn print_raw_data(
         &self,
-        data: &mut [u8],
+        data: &[u8],
         w: i32,
         h: i32,
         x_off: i16,
