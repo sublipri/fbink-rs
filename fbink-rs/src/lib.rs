@@ -5,6 +5,7 @@ use crate::thin::*;
 
 use dump::{dump_sunxi, FbInkDump};
 pub use fbink_sys::FBInkRect as FbInkRect;
+pub use image;
 pub use image::ImageOutputFormat;
 use state::SunxiForceRotation;
 
