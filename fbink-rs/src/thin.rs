@@ -382,7 +382,7 @@ pub fn fbink_rota_canonical_to_native(rota: u8) -> Result<u32, FbInkError> {
         x => Err(FbInkError::Other(x)),
     }
 }
-pub fn rota_native_to_canonical(rota: u32) -> Result<u8, FbInkError> {
+pub fn fbink_rota_native_to_canonical(rota: u32) -> Result<u8, FbInkError> {
     // returns positive error codes, not the usual negative
     let rv = unsafe { raw::fbink_rota_native_to_canonical(rota) };
     match rv as i32 {

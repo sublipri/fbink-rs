@@ -1,4 +1,4 @@
-use crate::thin::rota_native_to_canonical;
+use crate::thin::fbink_rota_native_to_canonical;
 
 use std::ffi::CStr;
 
@@ -132,7 +132,7 @@ impl FbInkState {
     /// The current canonical rotation of the device. For non-Kobo devices, this
     /// assumes that the framebuffer's reported rotation value is canonical.
     pub fn canonical_rotation(&self) -> CanonicalRotation {
-        match rota_native_to_canonical(self.current_rota.into()) {
+        match fbink_rota_native_to_canonical(self.current_rota.into()) {
             Ok(rotation) => CanonicalRotation::from_primitive(rotation),
             Err(_) => CanonicalRotation::from_primitive(self.current_rota),
         }
