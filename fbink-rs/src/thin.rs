@@ -254,7 +254,7 @@ pub fn fbink_restore(
     config: &FbInkConfig,
     dump: &FbInkDump,
 ) -> Result<(), FbInkError> {
-    let rv = unsafe { raw::fbink_restore(fbfd, &(*config).into(), dump.raw_dump()) };
+    let rv = unsafe { raw::fbink_restore(fbfd, &(*config).into(), dump.as_raw()) };
     match -rv {
         libc::EXIT_SUCCESS => Ok(()),
         libc::EXIT_FAILURE => Err(FbInkError::ExitFailure("restore".into())),

@@ -1,13 +1,13 @@
 pub use crate::config::FbInkConfig;
+use crate::dump::{Dump, FbInkDump, SunxiDump};
 use crate::error::FbInkError;
+use crate::state::SunxiForceRotation;
 pub use crate::state::{CanonicalRotation, FbInkState};
 use crate::thin::*;
 
-use dump::{dump_sunxi, FbInkDump};
 pub use fbink_sys::FBInkRect as FbInkRect;
 pub use image;
 pub use image::ImageOutputFormat;
-use state::SunxiForceRotation;
 
 pub mod config;
 pub mod dump;
@@ -21,7 +21,7 @@ pub mod thin;
 #[derive(Debug)]
 pub struct FbInk {
     pub config: FbInkConfig,
-    fbfd: std::os::raw::c_int,
+    pub fbfd: std::os::raw::c_int,
 }
 
 impl Drop for FbInk {
@@ -108,6 +108,18 @@ impl FbInk {
         fbink_dump(self.fbfd)
     }
 
+    /// Dump the contents of the framebuffer, using a workaround for Sunxi SoCs that's less
+    /// efficient than a standard dump but allows capturing content you haven't drawn yourself.
+    pub fn dump_workaround_sunxi(&self) -> Result<Box<dyn Dump>, FbInkError> {
+        let state = self.state();
+        let dump: Box<dyn Dump> = if state.is_sunxi {
+            Box::new(SunxiDump::new(state.current_rota)?)
+        } else {
+            Box::new(self.dump()?)
+        };
+        Ok(dump)
+    }
+
     /// Dump the contents of a specific region of the framebuffer
     pub fn region_dump(
         &self,
@@ -130,8 +142,8 @@ impl FbInk {
     }
 
     /// Restore the contents of a dump back to the framebuffer
-    pub fn restore(&self, dump: &FbInkDump) -> Result<(), FbInkError> {
-        fbink_restore(self.fbfd, &self.config, dump)
+    pub fn restore(&self, dump: &impl Dump) -> Result<(), FbInkError> {
+        dump.restore(self)
     }
 
     // Doesn't seem to work. Might make sense to just use the image crate for decoding and then
@@ -161,7 +173,8 @@ impl FbInk {
     pub fn screenshot(&self, encoding: ImageOutputFormat) -> Result<Vec<u8>, FbInkError> {
         let state = self.state();
         if state.is_sunxi {
-            Ok(dump_sunxi(Some(encoding), state.current_rota)?)
+            let dump = self.dump_workaround_sunxi()?;
+            Ok(dump.encode(encoding)?)
         } else {
             // On some devices the dump contains junk pixels outside the visible framebuffer
             let (width, height) = (state.view_width as u16, state.view_height as u16);
