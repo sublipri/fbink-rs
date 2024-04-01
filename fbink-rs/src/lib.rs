@@ -142,7 +142,7 @@ impl FbInk {
     }
 
     /// Restore the contents of a dump back to the framebuffer
-    pub fn restore(&self, dump: &impl Dump) -> Result<(), FbInkError> {
+    pub fn restore(&self, dump: &dyn Dump) -> Result<(), FbInkError> {
         dump.restore(self)
     }
 
