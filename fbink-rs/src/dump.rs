@@ -9,7 +9,7 @@ use std::process::Command;
 use std::slice;
 
 use fbink_sys as raw;
-use image::{imageops, ColorType, DynamicImage, ImageOutputFormat};
+use image::{imageops, ColorType, DynamicImage, ImageFormat};
 use proc_mounts::MountIter;
 
 pub trait Dump {
@@ -32,7 +32,7 @@ pub trait Dump {
     /// Otherwise it will clone the data the first time it is called.
     fn dynamic_image_ref(&mut self) -> Result<&DynamicImage, FbInkError>;
     /// Encode the dump's data in the given image format and return the bytes
-    fn encode(&self, encoding: ImageOutputFormat) -> Result<Vec<u8>, FbInkError> {
+    fn encode(&self, encoding: ImageFormat) -> Result<Vec<u8>, FbInkError> {
         let color_type = match self.bpp() {
             32 => ColorType::Rgba8,
             24 => ColorType::Rgb8,

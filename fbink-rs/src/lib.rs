@@ -7,7 +7,6 @@ use crate::thin::*;
 
 pub use fbink_sys::FBInkRect as FbInkRect;
 pub use image;
-pub use image::ImageOutputFormat;
 
 pub mod config;
 pub mod dump;
@@ -170,7 +169,7 @@ impl FbInk {
     }
 
     /// Take a screenshot of the framebuffer. Returns the encoded image as bytes
-    pub fn screenshot(&self, encoding: ImageOutputFormat) -> Result<Vec<u8>, FbInkError> {
+    pub fn screenshot(&self, encoding: image::ImageFormat) -> Result<Vec<u8>, FbInkError> {
         let state = self.state();
         if state.is_sunxi {
             let dump = self.dump_workaround_sunxi()?;
