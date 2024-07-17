@@ -18,6 +18,7 @@ fn main() {
         "libunibreak/src/linebreakdata.c",
         "libunibreak/src/unibreakdef.c",
         "libunibreak/src/linebreakdef.c",
+        "libunibreak/src/eastasianwidthdef.c"
     ];
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     let lib_path = out_dir.join("libfbink.a");
