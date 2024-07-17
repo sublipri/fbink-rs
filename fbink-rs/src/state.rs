@@ -44,6 +44,7 @@ pub struct FbInkState {
     pub is_kindle_legacy: bool,
     pub is_kobo_non_mt: bool,
     pub unreliable_wait_for: bool,
+    pub can_wake_epdc: bool,
     pub ntx_boot_rota: u8,
     pub ntx_rota_quirk: NtxRotationQuirk,
     pub rotation_map: [u8; 4usize],
@@ -55,6 +56,8 @@ pub struct FbInkState {
     pub can_rotate: bool,
     pub can_hw_invert: bool,
     pub has_eclipse_wfm: bool,
+    pub has_color_panel: bool,
+    pub pixel_format: PixelFormat,
     pub can_wait_for_submission: bool,
 }
 
@@ -87,6 +90,7 @@ impl FbInkState {
             screen_width: s.screen_width,
             screen_height: s.screen_height,
             scanline_stride: s.scanline_stride,
+            can_wake_epdc: s.can_wake_epdc,
             bpp: s.bpp,
             inverted_grayscale: s.inverted_grayscale,
             device_name: get_string(s.device_name.as_ptr()),
@@ -125,6 +129,8 @@ impl FbInkState {
             can_rotate: s.can_rotate,
             can_hw_invert: s.can_hw_invert,
             has_eclipse_wfm: s.has_eclipse_wfm,
+            has_color_panel: s.has_color_panel,
+            pixel_format: s.pixel_format.into(),
             can_wait_for_submission: s.can_wait_for_submission,
         }
     }
@@ -213,6 +219,24 @@ pub enum MtkHalftoneMode {
     DefaultCheckerSize = MTK_HALFTONE_MODE_INDEX_E_MTK_HALFTONE_DEFAULT_CHECKER_SIZE,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(u8)]
+pub enum PixelFormat {
+    #[default]
+    Unknown = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_UNKNOWN,
+    Y4 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_Y4,
+    Y8 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_Y8,
+    Bgr565 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_BGR565,
+    Rgb565 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_RGB565,
+    Bgr24 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_BGR24,
+    Rgb24 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_RGB24,
+    Bgra = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_BGRA,
+    Rgba = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_RGBA,
+    Bgr32 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_BGR32,
+    Rgb32 = FBINK_PXFMT_INDEX_E_FBINK_PXFMT_RGB32,
+}
+
 #[derive(Debug, Display, AsRefStr, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(u16)]
@@ -231,6 +255,7 @@ pub enum DeviceId {
     KoboMini = KOBO_DEVICE_ID_E_DEVICE_KOBO_MINI,
     KoboGlo = KOBO_DEVICE_ID_E_DEVICE_KOBO_GLO,
     KoboGloHd = KOBO_DEVICE_ID_E_DEVICE_KOBO_GLO_HD,
+    TolinoShine2Hd = KOBO_DEVICE_ID_E_DEVICE_TOLINO_SHINE_2HD,
     KoboTouch2 = KOBO_DEVICE_ID_E_DEVICE_KOBO_TOUCH_2,
     KoboAura = KOBO_DEVICE_ID_E_DEVICE_KOBO_AURA,
     KoboAuraHd = KOBO_DEVICE_ID_E_DEVICE_KOBO_AURA_HD,
@@ -240,20 +265,33 @@ pub enum DeviceId {
     KoboAuraOne = KOBO_DEVICE_ID_E_DEVICE_KOBO_AURA_ONE,
     KoboAuraOneLe = KOBO_DEVICE_ID_E_DEVICE_KOBO_AURA_ONE_LE,
     KoboAuraSe = KOBO_DEVICE_ID_E_DEVICE_KOBO_AURA_SE,
+    TolinoVision = KOBO_DEVICE_ID_E_DEVICE_TOLINO_VISION,
     KoboAuraSeR2 = KOBO_DEVICE_ID_E_DEVICE_KOBO_AURA_SE_R2,
     KoboClaraHd = KOBO_DEVICE_ID_E_DEVICE_KOBO_CLARA_HD,
+    TolinoShine3 = KOBO_DEVICE_ID_E_DEVICE_TOLINO_SHINE_3,
     KoboForma = KOBO_DEVICE_ID_E_DEVICE_KOBO_FORMA,
+    TolinoEpos2 = KOBO_DEVICE_ID_E_DEVICE_TOLINO_EPOS_2,
+    KoboForma32 = KOBO_DEVICE_ID_E_DEVICE_KOBO_FORMA_32GB,
     KoboLibraH2o = KOBO_DEVICE_ID_E_DEVICE_KOBO_LIBRA_H2O,
+    TolinoVision5 = KOBO_DEVICE_ID_E_DEVICE_TOLINO_VISION_5,
     KoboNia = KOBO_DEVICE_ID_E_DEVICE_KOBO_NIA,
     KoboElipsa = KOBO_DEVICE_ID_E_DEVICE_KOBO_ELIPSA,
     KoboLibra2 = KOBO_DEVICE_ID_E_DEVICE_KOBO_LIBRA_2,
     KoboSage = KOBO_DEVICE_ID_E_DEVICE_KOBO_SAGE,
+    TolinoEpos3 = KOBO_DEVICE_ID_E_DEVICE_TOLINO_EPOS_3,
     KoboClara2e = KOBO_DEVICE_ID_E_DEVICE_KOBO_CLARA_2E,
     KoboElipsa2e = KOBO_DEVICE_ID_E_DEVICE_KOBO_ELIPSA_2E,
+    KoboLibraColour = KOBO_DEVICE_ID_E_DEVICE_KOBO_LIBRA_COLOUR,
+    TolinoVisionColor = KOBO_DEVICE_ID_E_DEVICE_TOLINO_VISION_COLOR,
+    KoboClaraBw = KOBO_DEVICE_ID_E_DEVICE_KOBO_CLARA_BW,
+    TolinoShineBw = KOBO_DEVICE_ID_E_DEVICE_TOLINO_SHINE_BW,
+    KoboClaraColour = KOBO_DEVICE_ID_E_DEVICE_KOBO_CLARA_COLOUR,
+    TolinoShineColor = KOBO_DEVICE_ID_E_DEVICE_TOLINO_SHINE_COLOR,
     // Mainline
-    TolinoShine2hd = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_SHINE_2HD,
-    TolinoShine3 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_SHINE_3,
-    TolinoVision5 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_VISION_5,
+    MainlineTolinoShine2hd = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_SHINE_2HD,
+    MainlineTolinoShine3 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_SHINE_3,
+    MainlineTolinoVision = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_VISION,
+    MainlineTolinoVision5 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_TOLINO_VISION_5,
     GenericImx5 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_GENERIC_IMX5,
     GenericImx6 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_GENERIC_IMX6,
     GenericSunxiB300 = MAINLINE_DEVICE_ID_E_DEVICE_MAINLINE_GENERIC_SUNXI_B300,
@@ -287,10 +325,12 @@ pub enum DeviceId {
     PocketbookAqua2 = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_AQUA2,
     PocketbookUltra = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_ULTRA,
     PocketbookEra = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_ERA,
+    PocketbookEraColor = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_ERA_COLOR,
     PocketbookInkpad3 = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD_3,
     PocketbookInkpad3Pro = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD_3_PRO,
     PocketbookInkpadColor = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD_COLOR,
     PocketbookInkpadColor2 = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD_COLOR_2,
+    PocketbookInkpadColor3 = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD_COLOR_3,
     PocketbookInkpad = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD,
     PocketbookInkpadX = POCKETBOOK_DEVICE_ID_E_DEVICE_POCKETBOOK_INKPAD_X,
     // clashes with INKPAD_COLOR_2

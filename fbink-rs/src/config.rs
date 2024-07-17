@@ -34,10 +34,12 @@ pub struct FbInkConfig {
     pub wfm_mode: WaveformMode,
     pub dithering_mode: HardwareDitherMode,
     pub sw_dithering: bool,
+    pub cfa_mode: CfaMode,
     pub is_nightmode: bool,
     pub no_refresh: bool,
     pub no_merge: bool,
     pub is_animated: bool,
+    pub saturation_boost: u8,
     pub to_syslog: bool,
 }
 
@@ -73,10 +75,12 @@ impl From<FbInkConfig> for raw::FBInkConfig {
             wfm_mode: c.wfm_mode.into(),
             dithering_mode: c.dithering_mode.into(),
             sw_dithering: c.sw_dithering,
+            cfa_mode: c.cfa_mode.into(),
             is_nightmode: c.is_nightmode,
             no_refresh: c.no_refresh,
             no_merge: c.no_merge,
             is_animated: c.is_animated,
+            saturation_boost: c.saturation_boost,
             to_syslog: c.to_syslog,
         }
     }
@@ -231,6 +235,7 @@ pub enum WaveformMode {
     Clear = WFM_MODE_INDEX_E_WFM_CLEAR,
     GC4L = WFM_MODE_INDEX_E_WFM_GC4L,
     GCC16 = WFM_MODE_INDEX_E_WFM_GCC16,
+    GLRC16 = WFM_MODE_INDEX_E_WFM_GLRC16,
     GC16Partial = WFM_MODE_INDEX_E_WFM_GC16_PARTIAL,
     GCK16Partial = WFM_MODE_INDEX_E_WFM_GCK16_PARTIAL,
     Dunm = WFM_MODE_INDEX_E_WFM_DUNM,
@@ -248,4 +253,18 @@ pub enum HardwareDitherMode {
     Ordered = HW_DITHER_INDEX_E_HWD_ORDERED,
     QuantOnly = HW_DITHER_INDEX_E_HWD_QUANT_ONLY,
     Legacy = HW_DITHER_INDEX_E_HWD_LEGACY,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[repr(u8)]
+pub enum CfaMode {
+    #[default]
+    None = CFA_MODE_INDEX_E_CFA_NONE,
+    S4 = CFA_MODE_INDEX_E_CFA_S4,
+    S7 = CFA_MODE_INDEX_E_CFA_S7,
+    S9 = CFA_MODE_INDEX_E_CFA_S9,
+    G0 = CFA_MODE_INDEX_E_CFA_G0,
+    G1 = CFA_MODE_INDEX_E_CFA_G1,
+    G2 = CFA_MODE_INDEX_E_CFA_G2,
 }
