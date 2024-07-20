@@ -1,9 +1,11 @@
 [workspace]
 resolver = "2"
-
 members = [
     "fbink-sys",
     "fbink-rs",
+]
+exclude = [
+    "examples/print-svg",
 ]
 
 [profile.release]

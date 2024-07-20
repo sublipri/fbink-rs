@@ -1,0 +1,23 @@
+[package]
+name = "print-svg"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.86"
+fbink-rs = { path = "../../fbink-rs" }
+resvg = "0.42.0"
+
+[profile.release]
+opt-level = 3
+strip = true
+
+[profile.release-minsized]
+inherits = "release"
+panic = "abort"
+codegen-units = 1
+opt-level = "z"
+lto = "fat"
+strip = true
