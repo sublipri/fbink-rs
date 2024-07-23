@@ -181,21 +181,21 @@ pub enum NtxRotationQuirk {
     CcwTouch = NTX_ROTA_INDEX_E_NTX_ROTA_CCW_TOUCH,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive)]
+#[derive(Debug, Clone, Copy, PartialEq, FromPrimitive, IntoPrimitive, Display)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[repr(i8)]
 pub enum SunxiForceRotation {
-    #[default]
     NotSupp = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_NOTSUP,
     CurrentRota = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_CURRENT_ROTA,
     CurrentLayout = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_CURRENT_LAYOUT,
     Portrait = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_PORTRAIT,
     Landscape = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_LANDSCAPE,
+    #[default]
     Gyro = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_GYRO,
-    Ur = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_UR,
-    Cw = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_CW,
-    Ud = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_UD,
-    Ccw = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_CCW,
+    Upright = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_UR,
+    Clockwise = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_CW,
+    UpsideDown = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_UD,
+    CounterClockwise = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_CCW,
     Workbuf = SUNXI_FORCE_ROTA_INDEX_E_FORCE_ROTA_WORKBUF,
 }
 
